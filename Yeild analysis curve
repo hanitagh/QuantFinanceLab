@@ -1,0 +1,174 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from datetime import datetime
+import matplotlib.pyplot as plt
+import seaborn as sns
+Requirement already satisfied: pandas_datareader in /usr/local/lib/python3.12/dist-packages (0.10.0)
+Requirement already satisfied: lxml in /usr/local/lib/python3.12/dist-packages (from pandas_datareader) (5.4.0)
+Requirement already satisfied: pandas>=0.23 in /usr/local/lib/python3.12/dist-packages (from pandas_datareader) (2.2.2)
+Requirement already satisfied: requests>=2.19.0 in /usr/local/lib/python3.12/dist-packages (from pandas_datareader) (2.32.4)
+Requirement already satisfied: numpy>=1.26.0 in /usr/local/lib/python3.12/dist-packages (from pandas>=0.23->pandas_datareader) (2.0.2)
+Requirement already satisfied: python-dateutil>=2.8.2 in /usr/local/lib/python3.12/dist-packages (from pandas>=0.23->pandas_datareader) (2.9.0.post0)
+Requirement already satisfied: pytz>=2020.1 in /usr/local/lib/python3.12/dist-packages (from pandas>=0.23->pandas_datareader) (2025.2)
+Requirement already satisfied: tzdata>=2022.7 in /usr/local/lib/python3.12/dist-packages (from pandas>=0.23->pandas_datareader) (2025.2)
+Requirement already satisfied: charset_normalizer<4,>=2 in /usr/local/lib/python3.12/dist-packages (from requests>=2.19.0->pandas_datareader) (3.4.3)
+Requirement already satisfied: idna<4,>=2.5 in /usr/local/lib/python3.12/dist-packages (from requests>=2.19.0->pandas_datareader) (3.10)
+Requirement already satisfied: urllib3<3,>=1.21.1 in /usr/local/lib/python3.12/dist-packages (from requests>=2.19.0->pandas_datareader) (2.5.0)
+Requirement already satisfied: certifi>=2017.4.17 in /usr/local/lib/python3.12/dist-packages (from requests>=2.19.0->pandas_datareader) (2025.8.3)
+Requirement already satisfied: six>=1.5 in /usr/local/lib/python3.12/dist-packages (from python-dateutil>=2.8.2->pandas>=0.23->pandas_datareader) (1.17.0)
+ DGS3MO  DGS2  DGS5  DGS10  DGS30
+DATE                                        
+2018-01-01     NaN   NaN   NaN    NaN    NaN
+2018-01-02    1.44  1.92  2.25   2.46   2.81
+2018-01-03    1.41  1.94  2.25   2.44   2.78
+2018-01-04    1.41  1.96  2.27   2.46   2.79
+2018-01-05    1.39  1.96  2.29   2.47   2.81
+...            ...   ...   ...    ...    ...
+2024-12-25     NaN   NaN   NaN    NaN    NaN
+2024-12-26    4.35  4.30  4.42   4.58   4.76
+2024-12-27    4.31  4.31  4.45   4.62   4.82
+2024-12-30    4.37  4.24  4.37   4.55   4.77
+2024-12-31    4.37  4.25  4.38   4.58   4.78
+
+[1827 rows x 5 columns]
+from pandas_datareader.data import DataReader
+
+start = '2018-01-01'
+end = '2024-12-31'
+
+tickers = ['DGS3MO', 'DGS2', 'DGS5', 'DGS10', 'DGS30']
+df = pd.DataFrame()
+
+for t in tickers:
+    df[t] = DataReader(t, 'fred', start, end)
+
+print(df)
+dates = ['2020-03-02', '2021-12-01', '2023-03-01', '2024-06-03']
+terms = [0.25, 2, 5, 10, 30]  # corresponding to tickers above
+
+for d in dates:
+    plt.plot(terms, df.loc[d].values, label=d)
+
+plt.title("U.S. Treasury Yield Curve Over Time")
+plt.xlabel("Maturity (Years)")
+plt.ylabel("Yield (%)")
+plt.legend()
+plt.grid()
+plt.show()
+for d in dates:
+    nearest = df.index.get_loc(d)
+    actual_date = df.index[nearest]
+    print(f"Requested: {d} → Actual: {actual_date.strftime('%Y-%m-%d')}")
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+
+# Ensure the index is datetime
+df.index = pd.to_datetime(df.index)
+
+# Dates and maturities
+dates = ['2020-03-02', '2021-12-01', '2023-03-01', '2024-06-03']
+terms = [0.25, 2, 5, 10, 30]
+
+# Set seaborn style
+sns.set(style="whitegrid", context="notebook")
+
+# Create a larger figure
+plt.figure(figsize=(11, 6))
+
+# Color palette
+colors = sns.color_palette("husl", len(dates))
+
+# Plot each curve
+for i, d in enumerate(dates):
+    date_fmt = pd.to_datetime(d).strftime('%b %Y')
+    yields = df.loc[d].values
+    plt.plot(terms, yields, marker='o', linestyle='-', linewidth=2,
+             color=colors[i], label=date_fmt)
+
+    # Annotate last yield point
+    plt.text(terms[-1] + 0.3, yields[-1], f"{yields[-1]:.2f}%", color=colors[i], fontsize=9, va='center')
+
+# Title and labels
+plt.title("📈 U.S. Treasury Yield Curves at Key Dates", fontsize=16, fontweight='bold')
+plt.xlabel("Maturity (Years)", fontsize=12)
+plt.ylabel("Yield (%)", fontsize=12)
+
+# Grid, ticks, and legend
+plt.grid(True, linestyle='--', alpha=0.6)
+plt.xticks(terms)
+plt.yticks(fontsize=10)
+plt.legend(title='Date', fontsize=10)
+plt.tight_layout()
+
+# Display plot
+plt.show()
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+
+# Dates and maturities
+dates = ['2020-03-02', '2021-12-01', '2023-03-01', '2024-06-03']
+terms = [0.25, 2, 5, 10, 30]  # corresponding to tickers above
+
+# Set beautiful Seaborn theme and context
+sns.set(style="whitegrid", context="talk", palette="muted")
+
+# Create a sleek dark-on-light color palette
+colors = sns.color_palette("Spectral", len(dates))
+
+# Initialize a polished figure
+plt.figure(figsize=(12, 7))
+plt.rcParams.update({'font.family': 'serif'})
+
+# Plot yield curves with flair
+for i, d in enumerate(dates):
+    plt.plot(
+        terms,
+        df.loc[d].values,
+        marker='o',
+        linestyle='-',
+        linewidth=2.5,
+        markersize=7,
+        color=colors[i],
+        label=pd.to_datetime(d).strftime('%b %Y'),
+        alpha=0.9
+    )
+
+# Title and axis styling
+plt.title("🌟 U.S. Treasury Yield Curves at Key Moments (2019–2024)", fontsize=18, fontweight='bold', color='#333333')
+plt.xlabel("Maturity (Years)", fontsize=14, labelpad=10)
+plt.ylabel("Yield (%)", fontsize=14, labelpad=10)
+
+# Grid, ticks, and legend polish
+plt.grid(True, linestyle=':', linewidth=0.8, alpha=0.7)
+plt.xticks(terms, fontsize=12)
+plt.yticks(fontsize=12)
+plt.legend(title='Date', fontsize=11, title_fontsize=12, loc='best', frameon=True, fancybox=True, shadow=True)
+plt.tight_layout()
+
+# Annotate the last point of each curve
+for i, d in enumerate(dates):
+    y = df.loc[d].values[-1]
+    x = terms[-1]
+    plt.text(x + 0.6, y, f"{y:.2f}%", color=colors[i], fontsize=10, va='center', fontstyle='italic')
+
+# Add subtle background
+plt.gca().set_facecolor('#f9f9f9')
+plt.box(False)
+
+# Show it off!
+plt.show()
+from pandas_datareader.data import DataReader
+
+start = '2018-01-01'
+end = '2024-12-31'
+
+tickers = ['DGS3MO', 'DGS2', 'DGS5', 'DGS10', 'DGS30']
+df = pd.DataFrame()
+
+for t in tickers:
+    df[t] = DataReader(t, 'fred', start, end)
+pip install streamlit
